@@ -62,6 +62,7 @@ def track_package():
         })
     
     except Exception as e:
+	print("Erreur attrapée :", e)
         return jsonify({
             'status': 'Erreur interne',
             'last_update': '—',
