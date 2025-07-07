@@ -48,6 +48,7 @@ def track_package():
         info = response['data'][0]
         status = info.get('status', 'Inconnu')
         last_info = info.get('origin_info', {}).get('trackinfo', [])
+
         if last_info:
             last_update = last_info[-1].get('date', 'Non précisé')
             location = last_info[-1].get('location', 'Inconnu')
