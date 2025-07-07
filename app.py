@@ -5,7 +5,7 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
-API_KEY = 'CB9AF5E9849A76AD6B7177F53800F813'  # Remplace avec ta vraie clé API si besoin
+API_KEY = 'CB9AF5E9849A76AD6B7177F53800F813'
 BASE_URL = 'https://api.17track.net/track/v2'
 
 def register_tracking(tracking_number):
@@ -15,7 +15,9 @@ def register_tracking(tracking_number):
         'Content-Type': 'application/json'
     }
     payload = {
-        "data": [{"number": tracking_number}]
+        "data": [{
+            "number": tracking_number
+        }]
     }
     response = requests.post(url, json=payload, headers=headers)
     return response.status_code
@@ -27,7 +29,9 @@ def get_tracking_info(tracking_number):
         'Content-Type': 'application/json'
     }
     payload = {
-        "data": [{"number": tracking_number}]
+        "data": [{
+            "number": tracking_number
+        }]
     }
     response = requests.post(url, json=payload, headers=headers)
     return response.json()
@@ -44,7 +48,6 @@ def track_package():
         info = response['data'][0]
         status = info.get('status', 'Inconnu')
         last_info = info.get('origin_info', {}).get('trackinfo', [])
-
         if last_info:
             last_update = last_info[-1].get('date', 'Non précisé')
             location = last_info[-1].get('location', 'Inconnu')
