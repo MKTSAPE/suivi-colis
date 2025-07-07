@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
-import time
 
 app = Flask(__name__)
 CORS(app)
@@ -30,7 +29,9 @@ def get_tracking_info(tracking_number):
         'Content-Type': 'application/json'
     }
     payload = {
-        "numbers": [tracking_number]
+        "data": [{
+            "number": tracking_number
+        }]
     }
     response = requests.post(url, json=payload, headers=headers)
     return response.json()
@@ -39,32 +40,33 @@ def get_tracking_info(tracking_number):
 def track_package():
     data = request.get_json()
     tracking_number = data.get('tracking_number')
-
-    register_tracking(tracking_number)
-    time.sleep(5)
-
-    response = get_tracking_info(tracking_number)
-
+    
     try:
-        item = response['data'][0]
-        info = item.get('origin_info', {}).get('trackinfo', []) or item.get('destination_info', {}).get('trackinfo', [])
-        last_update = info[-1]['date'] if info else "—"
-        location = info[-1].get('location', "—") if info else "—"
-        status = item.get('status', 'Inconnu')
+        register_tracking(tracking_number)
+        response = get_tracking_info(tracking_number)
+        
+        info = response['data'][0]
+        status = info.get('status', 'Inconnu')
+        last_info = info.get('origin_info', {}).get('trackinfo', [])
+        if last_info:
+            last_update = last_info[-1].get('date', 'Non précisé')
+            location = last_info[-1].get('location', 'Inconnu')
+        else:
+            last_update = 'Non disponible'
+            location = 'Inconnu'
 
         return jsonify({
-            "status": status,
-            "last_update": last_update,
-            "location": location
+            'status': status,
+            'last_update': last_update,
+            'location': location
         })
-
+    
     except Exception as e:
         return jsonify({
-            "status": "Erreur interne",
-            "last_update": "—",
-            "location": "—",
-            "error": str(e)
-        })
+            'status': 'Erreur interne',
+            'last_update': '—',
+            'location': '—'
+        }), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
